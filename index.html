@@ -2,87 +2,150 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CSV to VCF Converter</title>
+  <title>File Converter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #6dd5ed, #2193b0);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
       color: #fff;
     }
 
     .container {
-      background-color: rgba(255, 255, 255, 0.1);
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      backdrop-filter: blur(10px);
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
     }
 
     h1 {
-      font-size: 2.8em;
+      text-align: center;
+      font-size: 3em;
       margin-bottom: 10px;
-      color: #fff;
-      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+      text-shadow: 1px 1px 5px #000;
+    }
+
+    .tool {
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 30px;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
     }
 
     h2 {
-      margin-bottom: 20px;
-      color: #f0f0f0;
+      margin-top: 0;
+      color: #fefefe;
     }
 
     input[type="file"] {
+      display: block;
+      margin: 10px 0 10px;
       padding: 10px;
       border-radius: 8px;
-      border: none;
-      margin-bottom: 20px;
       font-size: 1em;
     }
 
     button {
-      padding: 12px 25px;
+      padding: 10px 20px;
       border: none;
       border-radius: 25px;
-      background-color: #ffffff;
+      background: #fff;
       color: #2193b0;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background 0.3s ease;
       font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
     }
 
     button:hover {
-      background-color: #f0f0f0;
+      background: #f0f0f0;
+    }
+
+    .progress {
+      width: 100%;
+      background: #ffffff30;
+      border-radius: 30px;
+      height: 12px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #00ffdd;
+      transition: width 0.4s ease;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>FILE CONVERTER</h1>
-    <h2>CSV to VCF Converter</h2>
-    <input type="file" id="csvFile" accept=".csv">
-    <br><br>
-    <button onclick="convertCSVtoVCF()">Convert</button>
+
+    <!-- CSV to VCF -->
+    <div class="tool">
+      <h2>CSV to VCF Converter</h2>
+      <input type="file" id="csvFile" accept=".csv" onchange="showProgress('csvProgress')">
+      <div class="progress"><div id="csvProgress" class="progress-bar"></div></div>
+      <button onclick="convertCSVtoVCF()">Convert</button>
+    </div>
+
+    <!-- DOCX to PDF -->
+    <div class="tool">
+      <h2>DOCX to PDF Converter</h2>
+      <input type="file" id="docxFile" accept=".doc,.docx" onchange="showProgress('docxProgress')">
+      <div class="progress"><div id="docxProgress" class="progress-bar"></div></div>
+      <button onclick="alert('This function is a placeholder. Use Google Docs or an online service to convert DOCX to PDF.')">Convert</button>
+    </div>
+
+    <!-- Excel to DOC -->
+    <div class="tool">
+      <h2>Excel to DOC Converter</h2>
+      <input type="file" id="xlsxToDoc" accept=".xlsx" onchange="showProgress('excelDocProgress')">
+      <div class="progress"><div id="excelDocProgress" class="progress-bar"></div></div>
+      <button onclick="convertExcelToDocx()">Convert</button>
+    </div>
+
+    <!-- JPG to PDF -->
+    <div class="tool">
+      <h2>JPG to PDF Converter</h2>
+      <input type="file" id="jpgFile" accept="image/jpeg,image/jpg" onchange="showProgress('jpgProgress')">
+      <div class="progress"><div id="jpgProgress" class="progress-bar"></div></div>
+      <button onclick="convertJPGtoPDF()">Convert</button>
+    </div>
+
+    <!-- Excel to CSV -->
+    <div class="tool">
+      <h2>Excel to CSV Converter</h2>
+      <input type="file" id="excelFile" accept=".xlsx" onchange="showProgress('excelCsvProgress')">
+      <div class="progress"><div id="excelCsvProgress" class="progress-bar"></div></div>
+      <button onclick="convertExcelToCSV()">Convert</button>
+    </div>
   </div>
 
   <script>
-    function convertCSVtoVCF() {
-      const fileInput = document.getElementById('csvFile');
-      const file = fileInput.files[0];
+    // Show progress bar
+    function showProgress(id) {
+      const bar = document.getElementById(id);
+      bar.style.width = "0%";
+      let width = 0;
+      const interval = setInterval(() => {
+        width += 10;
+        bar.style.width = width + "%";
+        if (width >= 100) clearInterval(interval);
+      }, 100);
+    }
 
-      if (!file) {
-        alert("Please select a CSV file first.");
-        return;
-      }
+    // CSV to VCF
+    function convertCSVtoVCF() {
+      const file = document.getElementById('csvFile').files[0];
+      if (!file) return alert("Select a CSV file");
 
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         const lines = e.target.result.split('\n');
         const header = lines[0].trim().split(',');
         const nameIndex = header.indexOf("Name");
@@ -90,27 +153,19 @@
         const valueIndex = header.indexOf("Value");
 
         if (nameIndex === -1 || typeIndex === -1 || valueIndex === -1) {
-          alert("CSV must contain 'Name', 'Type', and 'Value' headers.");
-          return;
+          return alert("CSV must contain Name, Type, and Value headers.");
         }
 
         let vcfContent = '';
         for (let i = 1; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
-
-          const cols = line.split(',');
+          const cols = lines[i].trim().split(',');
           const name = cols[nameIndex]?.trim();
           const type = cols[typeIndex]?.trim()?.toUpperCase();
           const phone = cols[valueIndex]?.trim();
-
           if (name && phone) {
-            vcfContent += "BEGIN:VCARD\n";
-            vcfContent += "VERSION:3.0\n";
-            vcfContent += `N:${name};;;;\n`;
-            vcfContent += `FN:${name}\n`;
-            vcfContent += `TEL;TYPE=${type}:${phone}\n`;
-            vcfContent += "END:VCARD\n\n";
+            vcfContent += "BEGIN:VCARD\nVERSION:3.0\n";
+            vcfContent += `N:${name};;;;\nFN:${name}\n`;
+            vcfContent += `TEL;TYPE=${type}:${phone}\nEND:VCARD\n\n`;
           }
         }
 
@@ -120,8 +175,63 @@
         link.download = 'contacts.vcf';
         link.click();
       };
-
       reader.readAsText(file);
+    }
+
+    // Excel to DOC (as .txt)
+    function convertExcelToDocx() {
+      const file = document.getElementById('xlsxToDoc').files[0];
+      if (!file) return alert("Select an Excel file");
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const text = XLSX.utils.sheet_to_csv(sheet);
+
+        const blob = new Blob([text], { type: 'application/msword' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = "excel_to_doc.doc";
+        link.click();
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // JPG to PDF
+    function convertJPGtoPDF() {
+      const file = document.getElementById('jpgFile').files[0];
+      if (!file) return alert("Select a JPG file");
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const imgData = e.target.result;
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, 'JPEG', 15, 40, 180, 160);
+        pdf.save("image.pdf");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Excel to CSV
+    function convertExcelToCSV() {
+      const file = document.getElementById('excelFile').files[0];
+      if (!file) return alert("Select an Excel file");
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]]);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = "converted.csv";
+        link.click();
+      };
+      reader.readAsArrayBuffer(file);
     }
   </script>
 </body>
