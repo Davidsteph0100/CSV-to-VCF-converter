@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CSV to VCF Converter</title>
+</head>
+<body>
+  <h2>CSV to VCF Converter</h2>
+  <input type="file" id="csvFile" accept=".csv">
+  <button onclick="convertCSVtoVCF()">Convert</button>
+
+  <script>
+    function convertCSVtoVCF() {
+      const fileInput = document.getElementById('csvFile');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please select a CSV file first.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split('\n');
+        const header = lines[0].trim().split(',');
+        const nameIndex = header.indexOf("Name");
+        const typeIndex = header.indexOf("Type");
+        const valueIndex = header.indexOf("Value");
+
+        if (nameIndex === -1 || typeIndex === -1 || valueIndex === -1) {
+          alert("CSV must contain 'Name', 'Type', and 'Value' headers.");
+          return;
+        }
+
+        let vcfContent = '';
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          const cols = line.split(',');
+          const name = cols[nameIndex]?.trim();
+          const type = cols[typeIndex]?.trim()?.toUpperCase();
+          const phone = cols[valueIndex]?.trim();
+
+          if (name && phone) {
+            vcfContent += "BEGIN:VCARD\n";
+            vcfContent += "VERSION:3.0\n";
+            vcfContent += `N:${name};;;;\n`;
+            vcfContent += `FN:${name}\n`;
+            vcfContent += `TEL;TYPE=${type}:${phone}\n`;
+            vcfContent += "END:VCARD\n\n";
+          }
+        }
+
+        const blob = new Blob([vcfContent], { type: 'text/vcard' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'contacts.vcf';
+        link.click();
+      };
+
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
