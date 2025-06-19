@@ -1,12 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>CSV to VCF Converter</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #6dd5ed, #2193b0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 10px;
+      color: #fff;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #f0f0f0;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 20px;
+      font-size: 1em;
+    }
+
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      background-color: #ffffff;
+      color: #2193b0;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
-  <h2>CSV to VCF Converter</h2>
-  <input type="file" id="csvFile" accept=".csv">
-  <button onclick="convertCSVtoVCF()">Convert</button>
+  <div class="container">
+    <h1>FILE CONVERTER</h1>
+    <h2>CSV to VCF Converter</h2>
+    <input type="file" id="csvFile" accept=".csv">
+    <br><br>
+    <button onclick="convertCSVtoVCF()">Convert</button>
+  </div>
 
   <script>
     function convertCSVtoVCF() {
